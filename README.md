@@ -1,6 +1,138 @@
-# JIN Chat — POC
+# JIN_Chat — Plugin Chat en ligne pour RPG Maker MV
 
-> Overlay chat en temps réel pour JIN (RPG Maker MV) — proof of concept avant intégration dans le projet principal.
+> Chat en temps réel intégré dans JIN, style plugin RPG Maker — un seul fichier à installer.
+
+---
+
+## Ce que ça fait
+
+Un bouton 💬 apparaît en bas à gauche de l'écran de jeu.
+
+- **3 canaux** : 🌍 Global (tout le monde) · 📍 Zone (même carte) · 💰 Commerce
+- **Historique** des 50 derniers messages rechargé à la connexion
+- **Compteur** de joueurs connectés en temps réel
+- **Nom du personnage RMMV** utilisé automatiquement comme pseudo
+- **Pas de compte**, pas de mot de passe — ça se connecte tout seul
+
+---
+
+## Déploiement — 3 étapes
+
+### ÉTAPE 1 — Lancer le serveur en ligne (une seule fois)
+
+Le jeu est hébergé sur Netlify (fichiers statiques uniquement).  
+Le chat a besoin d'un petit serveur séparé pour relayer les messages.
+
+---
+
+#### Option gratuite — Render.com (recommandée)
+
+> Coût : **0 €/mois**. Pas de carte bancaire requise.
+
+1. Mettre le dossier `chat-poc/server/` dans un dépôt GitHub (ou push ce repo entier)
+2. Créer un compte sur [render.com](https://render.com) avec GitHub
+3. **New > Web Service** → sélectionner le dépôt
+4. Render détecte le fichier `render.yaml` automatiquement
+5. Cliquer **Create Web Service** → l'URL ressemble à :  
+   `https://jin-chat-xxxx.onrender.com`
+6. Vérifier que ça marche :  
+   Ouvrir `https://jin-chat-xxxx.onrender.com/health` → doit afficher `{"status":"ok"}`
+
+> **Limitation** : le serveur "dort" après 15 min sans connexion (premier joueur attend ~30s).  
+> **Pour éviter ça gratuitement** : créer un compte [UptimeRobot](https://uptimerobot.com),  
+> ajouter un moniteur HTTP sur `/health` toutes les **5 minutes** → serveur toujours éveillé.
+
+---
+
+#### Option payante — Railway (déjà configuré)
+
+Le fichier `railway.toml` est déjà en place. Si tu as déjà un projet Railway actif, ça marche directement.  
+Coût : 5$/mois minimum depuis 2024.
+
+---
+
+### ÉTAPE 2 — Installer le plugin dans RPG Maker MV
+
+1. Copier **`plugin/JIN_Chat.js`** dans le dossier `js/` de ton projet RPG Maker MV
+2. Ouvrir **RPG Maker MV > Plugin Manager**
+3. Double-cliquer sur un emplacement libre → chercher `JIN_Chat`
+4. L'ajouter **en dernier dans la liste** (important)
+5. Renseigner le paramètre **SERVER_URL** :  
+   `https://jin-chat-xxxx.onrender.com`  
+   *(l'URL de ton serveur Render ou Railway)*
+6. Fermer le Plugin Manager, sauvegarder
+
+---
+
+### ÉTAPE 3 — Redéployer sur Netlify
+
+Redéploie ton projet comme d'habitude.  
+Le fichier `JIN_Chat.js` dans `js/` sera automatiquement inclus.
+
+---
+
+## Utilisation dans le jeu
+
+| Action | Comment |
+|---|---|
+| Ouvrir le chat | Cliquer sur **💬** (bas gauche) |
+| Changer de canal | Cliquer sur 🌍 / 📍 / 💰 |
+| Envoyer | Taper + **Entrée** |
+| Fermer | **Échap** ou re-cliquer sur 💬 |
+
+### Depuis un Event RPG Maker
+
+Ajouter une **Commande Plugin** dans n'importe quel event :
+```
+JIN_Chat open
+JIN_Chat close
+```
+
+---
+
+## Résumé des coûts
+
+| Service | Coût | Usage |
+|---|---|---|
+| Netlify | Gratuit | Jeu (déjà en place) |
+| Render.com | **Gratuit** | Serveur chat |
+| UptimeRobot | **Gratuit** | Garde le serveur éveillé |
+| **Total** | **0 €/mois** | |
+
+---
+
+## Structure des fichiers
+
+```
+chat-poc/
+├── plugin/
+│   └── JIN_Chat.js        ← seul fichier à copier dans RMMV
+├── server/
+│   ├── server.js          ← serveur Node.js à déployer
+│   ├── package.json
+│   ├── render.yaml        ← config Render.com (gratuit)
+│   └── Procfile           ← config Railway
+└── client/
+    └── index.html         ← page de test locale (dev uniquement)
+```
+
+---
+
+## FAQ
+
+**Le chat ne s'affiche pas ?**  
+→ Vérifier que `JIN_Chat.js` est dans `js/` ET activé dans le Plugin Manager.
+
+**"Pas connecté" affiché dans le chat ?**  
+→ Le serveur est peut-être en train de se réveiller (Render free, ~30s). Patienter et réessayer.
+
+**Messages non reçus en Zone ?**  
+→ Le canal Zone ne fonctionne que si plusieurs joueurs sont sur la **même carte** au même moment.
+
+**Le nom s'affiche "Joueur" ?**  
+→ Normal si le jeu démarre sans Actor actif (menu principal). Correct dès que le personnage est chargé.
+
+---
 
 ---
 

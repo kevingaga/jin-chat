@@ -1,0 +1,9 @@
+{
+  "name": "jin-chat-poc",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "cd server && node server.js",
+    "postinstall": "cd server && npm install",
+    "push": "powershell -ExecutionPolicy Bypass -File push.ps1"
+  }
+}

@@ -12,6 +12,8 @@
   // ── État ──────────────────────────────────────────────────────────────────
   var _socket         = null;
   var _isOpen         = false;
+  var _widgetVisible  = true;
+  var _rootEl         = null;
   var _playerName     = null;
   var _serverUrl      = 'http://localhost:3001';
   var _getMapName     = function () { return null; };
@@ -55,10 +57,13 @@
     }
   };
 
-  JinChat.open   = function () { _openChat(); };
-  JinChat.close  = function () { _closeChat(); };
-  JinChat.toggle = function () { _isOpen ? _closeChat() : _openChat(); };
-  JinChat.send   = function (text, channel) { _sendMessage(text, channel); };
+  JinChat.open          = function () { _openChat(); };
+  JinChat.close         = function () { _closeChat(); };
+  JinChat.toggle        = function () { _isOpen ? _closeChat() : _openChat(); };
+  JinChat.send          = function (text, channel) { _sendMessage(text, channel); };
+  JinChat.showWidget    = function () { _showWidget(); };
+  JinChat.hideWidget    = function () { _hideWidget(); };
+  JinChat.toggleWidget  = function () { _widgetVisible ? _hideWidget() : _showWidget(); };
 
   // Appelé par le plugin RMMV à chaque changement de carte
   JinChat.updateMap = function () {
@@ -69,6 +74,8 @@
 
   // ── Construction de l'interface ───────────────────────────────────────────
   function _buildUI(root) {
+    _rootEl = root;
+
     // Onglets canaux
     var channelTabsHtml = [
       '<span class="jin-channel-tab active" data-filter="all">Tout</span>'
@@ -79,6 +86,9 @@
     })).join('');
 
     root.innerHTML = [
+      // Bouton bulle — affiché uniquement quand le widget est masqué
+      '<div class="jin-chat-bubble" id="jin-chat-bubble">💬</div>',
+
       // Tab toggle
       '<div class="jin-chat-tab" id="jin-chat-tab">',
       '  <span class="jin-chat-tab-left">',
@@ -88,6 +98,7 @@
       '  <span class="jin-chat-tab-right">',
       '    <span class="jin-chat-players" id="jin-chat-players"></span>',
       '    <span class="jin-chat-chevron" id="jin-chat-chevron">▲</span>',
+      '    <span class="jin-chat-close" id="jin-chat-close" title="Masquer le chat">×</span>',
       '  </span>',
       '</div>',
 
@@ -116,7 +127,9 @@
 
     // Références
     _el = {
+      bubble:      document.getElementById('jin-chat-bubble'),
       tab:         document.getElementById('jin-chat-tab'),
+      closeBtn:    document.getElementById('jin-chat-close'),
       dot:         document.getElementById('jin-chat-dot'),
       window:      document.getElementById('jin-chat-window'),
       channels:    document.getElementById('jin-chat-channels'),
@@ -134,6 +147,8 @@
 
     // Events
     _el.tab.addEventListener('click', JinChat.toggle);
+    _el.closeBtn.addEventListener('click', function (e) { e.stopPropagation(); _hideWidget(); });
+    _el.bubble.addEventListener('click', _showWidget);
     _el.send.addEventListener('click', _sendFromInput);
     _el.channelBtn.addEventListener('click', _cycleChannel);
 
@@ -347,6 +362,18 @@
     _showChatInput();
     _connectSocket();
     _el.input.focus();
+  }
+
+  // ── Visibilité du widget ──────────────────────────────────────────────────
+  function _showWidget() {
+    _widgetVisible = true;
+    _rootEl.classList.remove('widget-hidden');
+  }
+
+  function _hideWidget() {
+    _widgetVisible = false;
+    _closeChat();
+    _rootEl.classList.add('widget-hidden');
   }
 
   // ── Utilitaires ───────────────────────────────────────────────────────────

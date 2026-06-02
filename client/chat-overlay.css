@@ -58,6 +58,41 @@
 .jin-chat-players  { color: #5a4220; font-size: 10px; }
 .jin-chat-chevron  { color: #7a5c10; font-size: 10px; transition: transform 0.15s; }
 
+.jin-chat-close {
+  color: #4a3218;
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 2px;
+  transition: color 0.1s;
+  margin-left: 2px;
+}
+.jin-chat-close:hover { color: #c84b4b; }
+
+/* ── Bouton bulle — visible uniquement quand le widget est masqué ────────────── */
+.jin-chat-bubble {
+  display: none;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 34px;
+  height: 26px;
+  background: var(--jin-bg);
+  border: 1px solid var(--jin-border);
+  color: var(--jin-gold);
+  font-size: 14px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+.jin-chat-bubble:hover { background: rgba(30, 22, 8, 0.96); }
+
+/* État "widget masqué" */
+#jin-chat-root.widget-hidden .jin-chat-bubble { display: flex; }
+#jin-chat-root.widget-hidden .jin-chat-tab    { display: none; }
+#jin-chat-root.widget-hidden .jin-chat-window { display: none !important; }
+
 /* ── Fenêtre principale ──────────────────────────────────────────────────────── */
 .jin-chat-window {
   background: var(--jin-bg);

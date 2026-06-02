@@ -154,8 +154,19 @@
     //
     // Ici on simule sans RPG Maker : playerName = null → affiche le prompt pseudo
 
+    // Détecte automatiquement le serveur : local ou Railway (défini via VITE_SERVER_URL ou data-attr)
+    var SERVER_URL = (function () {
+      var meta = document.querySelector('meta[name="jin-server-url"]');
+      if (meta) return meta.content;
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        return 'http://localhost:3001';
+      }
+      // À remplacer par ton URL Railway après déploiement du serveur
+      return window.JIN_SERVER_URL || 'http://localhost:3001';
+    })();
+
     JinChat.init({
-      serverUrl: 'http://localhost:3001',
+      serverUrl: SERVER_URL,
       playerName: null,             // null = prompt username (POC sans RPG Maker)
       getMapName: function () {
         return 'Forêt des Débuts'; // simulé — RPG Maker renvoie $gameMap.displayName()
@@ -165,7 +176,7 @@
     // Track connection status in dev panel
     (function watchStatus() {
       setInterval(function () {
-        fetch('http://localhost:3001/health')
+        fetch(SERVER_URL + '/health')
           .then(function (r) { return r.json(); })
           .then(function (d) {
             document.getElementById('dev-status').textContent =
@@ -181,10 +192,10 @@
     function simulateMessage() {
       var name = document.getElementById('sim-name').value || 'Nordine Ateur';
       // On emit via socket pour que ça passe par le serveur et revienne à tous
-      fetch('http://localhost:3001/health').then(function () {
+      fetch(SERVER_URL + '/health').then(function () {
         // On ne peut pas émettre directement depuis l'extérieur, on utilise notre propre socket
         // Astuce POC : on crée une connexion temporaire
-        var tmp = io('http://localhost:3001');
+        var tmp = io(SERVER_URL);
         tmp.on('connect', function () {
           tmp.emit('chat:send', {
             name: name,

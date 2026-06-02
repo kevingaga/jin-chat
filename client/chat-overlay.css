@@ -1,206 +1,228 @@
-/* JIN Chat Overlay — styles isolés, préfixe .jin- pour éviter les conflits */
+/* JIN Chat Overlay — préfixe .jin- pour éviter les conflits avec RPG Maker */
+
+/* ── Couleurs canal (reprises dans le JS via data-channel) ── */
+:root {
+  --jin-global: #e8a030;
+  --jin-zone:   #5aacde;
+  --jin-trade:  #7acc7a;
+  --jin-system: #4a5a4a;
+  --jin-bg:     rgba(14, 11, 6, 0.92);
+  --jin-border: #7a5c10;
+  --jin-border-dim: #3a2a06;
+  --jin-text:   #c8bda0;
+  --jin-gold:   #c8a84b;
+}
 
 #jin-chat-root {
   position: absolute;
   bottom: 0;
   left: 0;
-  width: 320px;
+  width: 330px;
   z-index: 9999;
   font-family: 'Courier New', 'Lucida Console', monospace;
   font-size: 12px;
   user-select: none;
 }
 
-/* ── Toggle tab ── */
+/* ── Toggle tab ─────────────────────────────────────────────────────────────── */
 .jin-chat-tab {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(14, 11, 6, 0.92);
-  border: 1px solid #7a5c10;
+  background: var(--jin-bg);
+  border: 1px solid var(--jin-border);
   border-bottom: none;
   padding: 3px 8px;
   cursor: pointer;
-  color: #c8a84b;
-  letter-spacing: 0.04em;
+  color: var(--jin-gold);
   font-size: 11px;
+  letter-spacing: 0.04em;
 }
+.jin-chat-tab:hover { background: rgba(30, 22, 8, 0.96); }
 
-.jin-chat-tab:hover {
-  background: rgba(30, 22, 8, 0.95);
-}
-
-.jin-chat-tab-title {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
+.jin-chat-tab-left { display: flex; align-items: center; gap: 6px; }
 
 .jin-chat-dot {
-  width: 6px;
-  height: 6px;
+  width: 6px; height: 6px;
   border-radius: 50%;
-  background: #555;
+  background: #444;
   flex-shrink: 0;
   transition: background 0.3s;
 }
-
 .jin-chat-dot.connected {
   background: #4caf50;
   box-shadow: 0 0 4px #4caf5088;
 }
 
-.jin-chat-players {
-  color: #6a5230;
-  font-size: 10px;
-}
+.jin-chat-tab-right { display: flex; align-items: center; gap: 8px; }
+.jin-chat-players  { color: #5a4220; font-size: 10px; }
+.jin-chat-chevron  { color: #7a5c10; font-size: 10px; transition: transform 0.15s; }
 
-.jin-chat-chevron {
-  color: #7a5c10;
-  font-size: 10px;
-  transition: transform 0.15s;
-}
-
-/* ── Main window ── */
+/* ── Fenêtre principale ──────────────────────────────────────────────────────── */
 .jin-chat-window {
-  background: rgba(14, 11, 6, 0.90);
-  border: 1px solid #7a5c10;
-  border-top: 1px solid #3a2a06;
+  background: var(--jin-bg);
+  border: 1px solid var(--jin-border);
+  border-top: 1px solid var(--jin-border-dim);
   display: flex;
   flex-direction: column;
 }
+.jin-chat-window.hidden { display: none; }
 
-.jin-chat-window.hidden {
-  display: none;
+/* ── Onglets canaux (style Dofus) ────────────────────────────────────────────── */
+.jin-chat-channels {
+  display: flex;
+  border-bottom: 1px solid var(--jin-border-dim);
+  background: rgba(8, 6, 2, 0.6);
+  padding: 2px 4px 0;
+  gap: 2px;
 }
 
-/* ── Messages ── */
+.jin-channel-tab {
+  padding: 2px 7px;
+  font-size: 10px;
+  cursor: pointer;
+  color: #5a4a28;
+  border: 1px solid transparent;
+  border-bottom: none;
+  margin-bottom: -1px;
+  transition: color 0.1s;
+}
+.jin-channel-tab:hover { color: var(--jin-gold); }
+
+.jin-channel-tab.active {
+  color: var(--jin-gold);
+  border-color: var(--jin-border-dim);
+  background: var(--jin-bg);
+}
+
+/* Couleur de l'indicateur de canal */
+.jin-channel-tab[data-filter="global"] .jin-ch-dot { color: var(--jin-global); }
+.jin-channel-tab[data-filter="zone"]   .jin-ch-dot { color: var(--jin-zone); }
+.jin-channel-tab[data-filter="trade"]  .jin-ch-dot { color: var(--jin-trade); }
+.jin-ch-dot { margin-right: 2px; font-size: 8px; }
+
+/* ── Zone messages ───────────────────────────────────────────────────────────── */
 .jin-chat-messages {
-  height: 160px;
+  height: 156px;
   overflow-y: auto;
   padding: 4px 6px;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
   user-select: text;
 }
-
-.jin-chat-messages::-webkit-scrollbar {
-  width: 4px;
-}
-
-.jin-chat-messages::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.3);
-}
-
-.jin-chat-messages::-webkit-scrollbar-thumb {
-  background: #3a2a06;
-}
+.jin-chat-messages::-webkit-scrollbar       { width: 4px; }
+.jin-chat-messages::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
+.jin-chat-messages::-webkit-scrollbar-thumb { background: #3a2a06; }
 
 .jin-chat-msg {
-  line-height: 1.4;
+  line-height: 1.45;
   word-break: break-word;
-  color: #c8bda0;
-  animation: jin-fadein 0.15s ease;
+  color: var(--jin-text);
+  animation: jin-fadein 0.12s ease;
 }
-
 @keyframes jin-fadein {
   from { opacity: 0; transform: translateY(2px); }
-  to   { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; }
 }
 
-.jin-chat-msg-name {
-  color: #c8a84b;
-  font-weight: bold;
-  cursor: default;
-}
+/* Couleur du nom selon le canal */
+.jin-chat-msg[data-channel="global"] .jin-msg-name { color: var(--jin-global); }
+.jin-chat-msg[data-channel="zone"]   .jin-msg-name { color: var(--jin-zone);   }
+.jin-chat-msg[data-channel="trade"]  .jin-msg-name { color: var(--jin-trade);  }
+.jin-chat-msg .jin-msg-name.jin-self { filter: brightness(1.4); }
 
-.jin-chat-msg-name.jin-self {
-  color: #7aafd4;
+/* Tag canal [G] [Z] [C] */
+.jin-msg-channel {
+  font-size: 9px;
+  padding: 0 2px;
+  border-radius: 2px;
+  opacity: 0.7;
+  margin-right: 2px;
 }
+.jin-chat-msg[data-channel="global"] .jin-msg-channel { color: var(--jin-global); }
+.jin-chat-msg[data-channel="zone"]   .jin-msg-channel { color: var(--jin-zone);   }
+.jin-chat-msg[data-channel="trade"]  .jin-msg-channel { color: var(--jin-trade);  }
 
-.jin-chat-msg-map {
-  color: #4a3a20;
-  font-size: 10px;
-}
+.jin-msg-time { color: #3a2a10; font-size: 10px; }
+.jin-msg-map  { color: #3a2a14; font-size: 10px; }
+.jin-msg-system { color: var(--jin-system); font-style: italic; }
 
-.jin-chat-msg-time {
-  color: #3a2a10;
-  font-size: 10px;
-}
-
-.jin-chat-msg-system {
-  color: #4a5a4a;
-  font-style: italic;
-}
-
-/* ── Input row ── */
+/* ── Ligne de saisie ─────────────────────────────────────────────────────────── */
 .jin-chat-input-row {
   display: flex;
-  border-top: 1px solid #2a1e04;
+  border-top: 1px solid var(--jin-border-dim);
 }
+
+/* Bouton canal actif — cliquable pour cycler */
+.jin-channel-btn {
+  background: rgba(8, 6, 2, 0.85);
+  border: none;
+  border-right: 1px solid var(--jin-border-dim);
+  color: var(--jin-global);
+  padding: 4px 7px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 10px;
+  min-width: 28px;
+  text-align: center;
+  transition: background 0.1s;
+  user-select: none;
+}
+.jin-channel-btn:hover { background: rgba(20, 14, 4, 0.9); }
+.jin-channel-btn[data-channel="global"] { color: var(--jin-global); }
+.jin-channel-btn[data-channel="zone"]   { color: var(--jin-zone);   }
+.jin-channel-btn[data-channel="trade"]  { color: var(--jin-trade);  }
 
 .jin-chat-input {
   flex: 1;
   background: rgba(6, 4, 1, 0.85);
   border: none;
   color: #e8dcc8;
-  padding: 5px 7px;
+  padding: 5px 6px;
   font-family: inherit;
   font-size: 12px;
   outline: none;
-  caret-color: #c8a84b;
+  caret-color: var(--jin-gold);
 }
-
-.jin-chat-input::placeholder {
-  color: #3a2a10;
-}
+.jin-chat-input::placeholder { color: #3a2a10; }
 
 .jin-chat-send {
   background: rgba(40, 28, 4, 0.9);
   border: none;
-  border-left: 1px solid #2a1e04;
-  color: #c8a84b;
-  padding: 5px 10px;
+  border-left: 1px solid var(--jin-border-dim);
+  color: var(--jin-gold);
+  padding: 4px 10px;
   cursor: pointer;
   font-family: inherit;
   font-size: 11px;
   transition: background 0.1s;
 }
+.jin-chat-send:hover { background: rgba(60, 42, 6, 0.95); }
 
-.jin-chat-send:hover {
-  background: rgba(60, 42, 6, 0.95);
-}
-
-/* ── Username prompt ── */
+/* ── Prompt pseudo (mode POC sans RPG Maker) ─────────────────────────────────── */
 .jin-chat-prompt {
   padding: 8px;
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
-
-.jin-chat-prompt label {
-  color: #c8a84b;
-  font-size: 11px;
-}
-
+.jin-chat-prompt label { color: var(--jin-gold); font-size: 11px; }
 .jin-chat-prompt input {
   background: rgba(6, 4, 1, 0.85);
-  border: 1px solid #3a2a06;
+  border: 1px solid var(--jin-border-dim);
   color: #e8dcc8;
   padding: 4px 7px;
   font-family: inherit;
   font-size: 12px;
   outline: none;
   width: 100%;
-  caret-color: #c8a84b;
+  caret-color: var(--jin-gold);
 }
-
 .jin-chat-prompt button {
   background: rgba(40, 28, 4, 0.9);
-  border: 1px solid #7a5c10;
-  color: #c8a84b;
+  border: 1px solid var(--jin-border);
+  color: var(--jin-gold);
   padding: 4px 10px;
   cursor: pointer;
   font-family: inherit;
